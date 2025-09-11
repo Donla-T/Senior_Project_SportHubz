@@ -1,0 +1,10 @@
+# Database
+db.sqlite3
+
+# Environment
+env/
+.env
+
+# Python
+__pycache__/
+*.pyc
