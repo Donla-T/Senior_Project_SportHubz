@@ -31,7 +31,7 @@ def start_order(request):
     
     payment_intent = ''
 
-    stripe.api_key = settings.STRIPE_API_KEY_HIDDEN
+    stripe.api_key = settings.STRIPE_SECRET_KEY
     session = stripe.checkout.Session.create(
         payment_method_types = ['card'],
         line_items = items,

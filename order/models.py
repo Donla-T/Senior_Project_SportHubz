@@ -29,6 +29,7 @@ class Order(models.Model):
     paid_amount = models.IntegerField(blank=True, null=True)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=ORDERED)
+    payment_intent = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         ordering = ('-created_at', )
