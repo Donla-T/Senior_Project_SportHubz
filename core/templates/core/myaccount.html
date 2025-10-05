@@ -11,7 +11,7 @@
         <strong>Username: </strong>{{ request.user.username}}<br>
         <strong>Email: </strong>{{ request.user.email}}<br>
 
-        <a href="{% url 'edit_myaccount' %}">Edit</a>
+        <a href="{% url 'edit_myaccount' %}" class="mt-6 inline-block py-2 px-4 bg-purple-500 text-white rounded-xl hover:bg-purple-700">Edit</a>
     </div>
 
     <hr>
