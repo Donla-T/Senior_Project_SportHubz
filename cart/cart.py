@@ -13,13 +13,24 @@ class Cart(object):
         self.cart = cart
     
     def __iter__(self):
-        for p in self.cart.keys():
-            self.cart[str(p)]['product'] = Product.objects.get(pk=p)
-        
-        for item in self.cart.values():
-            item['total_price'] = int(item['product'].price * item['quantity']) / 100
+        cart_data = self.cart  # dict ใน session: { "1": {"quantity": X, "id": "1"}, ... }
+        product_ids = list(cart_data.keys())
+        products = Product.objects.filter(pk__in=product_ids)
+        products_map = {str(p.id): p for p in products}
 
-            yield item
+        for pid, row in cart_data.items():
+            product = products_map.get(str(pid))
+            if not product:
+                # กันกรณี product ถูกลบไปแล้ว
+                continue
+
+            quantity = int(row.get('quantity', 0))
+            yield {
+                'id': pid,
+                'product': product,
+                'quantity': quantity,
+                'total_price': (product.price * quantity) / 100,
+            }
     
     def __len__(self):
         return sum(item['quantity'] for item in self.cart.values())
@@ -32,7 +43,7 @@ class Cart(object):
         product_id = str(product_id)
 
         if product_id not in self.cart:
-            self.cart[product_id] = {'quantity': 1, 'id': product_id}
+            self.cart[product_id] = {'quantity': 0, 'id': product_id}
         
         if update_quantity:
             self.cart[product_id]['quantity'] += int(quantity)
@@ -43,8 +54,9 @@ class Cart(object):
         self.save()
     
     def remove(self, product_id):
-        if product_id in self.cart:
-            del self.cart[product_id]
+        pid = str(product_id)
+        if pid in self.cart:
+            del self.cart[pid]
             self.save()
 
     def clear(self):
@@ -52,10 +64,20 @@ class Cart(object):
         self.session.modified = True
     
     def get_total_cost(self):
-        for p in self.cart.keys():
-            self.cart[str(p)]['product'] = Product.objects.get(pk=p)
+        cart_data = self.cart
+        product_ids = list(cart_data.keys())
+        products = Product.objects.filter(pk__in=product_ids)
+        products_map = {str(p.id): p for p in products}
 
-        return int(sum(item['product'].price * item['quantity'] for item in self.cart.values())) / 100
+        total_stang = 0  # สตางค์
+        for pid, row in cart_data.items():
+            product = products_map.get(str(pid))
+            if not product:
+                continue
+            quantity = int(row.get('quantity', 0))
+            total_stang += product.price * quantity
+
+        return total_stang / 100
     
     def get_item(self, product_id):
         if str(product_id) in self.cart:

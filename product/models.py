@@ -25,6 +25,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='uploads/', blank=True, null=True)
     thumbnail = models.ImageField(upload_to='uploads/', blank=True, null=True)
+    quantity = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ('-created_at',)

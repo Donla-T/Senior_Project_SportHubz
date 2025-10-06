@@ -1,35 +1,43 @@
 {% extends 'core/base.html' %}
-
 {% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
 
 <div class="max-w-6xl mx-auto flex flex-warp py-6 px-6 xl:px-0">
-    <div class="images w-full mb-6 lg:mb-0 lg:w-3/5">
-        <img 
-            class="rounded-xl" 
-            src="{% if product.image %}{{ product.image.url }}{% else %}https://via.placeholder.com/240x240.jpg{% endif %}"
-        >
-    </div>
+  <div class="images w-full mb-6 lg:mb-0 lg:w-3/5">
+    <img class="rounded-xl"
+         src="{% if product.image %}{{ product.image.url }}{% else %}https://via.placeholder.com/240x240.jpg{% endif %}"
+         alt="{{ product.name }}">
+  </div>
 
-    <div class="infomation w-full lg:w-2/5 lg:p-6">
-        <h1 class="text-2xl">{{ product.name }}</h1>
+  <div class="infomation w-full lg:w-2/5 lg:p-6">
+    <h1 class="text-2xl">{{ product.name }}</h1>
 
-        <p class="mt-1 text-gray-400">฿{{ product.get_display_price }}</p>
+    <p class="mt-1 text-gray-400">฿{{ product.get_display_price }}</p>
 
-        {% if product.description %}
-            <p class="mt-1 text-gray-700">{{ product.description }}</p>
-        {% endif %}
+    {# แสดงจำนวนคงเหลือ #}
+    <p class="mt-1 text-gray-600">In stock: {{ product.quantity }}</p>
 
-        <a 
-            href="#" 
-            class="mt-6 inline-block px-8 py-4 rounded-xl bg-purple-500 text-white hover:bg-purple-700" 
-            hx-get="{% url 'add_to_cart' product.id %}"
-            hx-target="#menu-cart-button"
-            hx-swap="outerHTML">
-            Add To Cart
-        </a>
-    </div>
+    {% if product.description %}
+      <p class="mt-3 text-gray-700">{{ product.description }}</p>
+    {% endif %}
+
+    {# ปุ่ม Add To Cart: ปิดเมื่อของหมด #}
+    <a
+      href="#"
+      class="mt-6 inline-block px-8 py-4 rounded-xl text-white
+             {% if product.quantity|default:0 <= 0 %}bg-gray-400 cursor-not-allowed{% else %}bg-purple-500 hover:bg-purple-700{% endif %}"
+      {% if product.quantity|default:0 > 0 %}
+        hx-get="{% url 'add_to_cart' product.id %}"
+        hx-target="#menu-cart-button"
+        hx-swap="outerHTML"
+      {% else %}
+        aria-disabled="true"
+      {% endif %}
+    >
+      Add To Cart
+    </a>
+  </div>
 </div>
 
 {% endblock %}
